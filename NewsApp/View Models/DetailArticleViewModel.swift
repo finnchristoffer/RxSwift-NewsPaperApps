@@ -1,15 +1,15 @@
 //
-//  ArticleViewModel.swift
+//  DetailArticleViewModel.swift
 //  NewsApp
 //
-//  Created by Finn Christoffer Kurniawan on 13/01/23.
+//  Created by Finn Christoffer Kurniawan on 14/01/23.
 //
 
 import Foundation
 import RxSwift
 import RxCocoa
 
-struct ArticleListViewModel {
+struct DetailArticleListViewModel {
     let articlesVM: [ArticleViewModel]
     
     init(_ articles: [Article]) {
@@ -17,14 +17,14 @@ struct ArticleListViewModel {
     }
 }
 
-extension ArticleListViewModel {
+extension DetailArticleListViewModel {
     
     func articleAt(_ index: Int) -> ArticleViewModel {
         return self.articlesVM[index]
     }
 }
 
-struct ArticleViewModel {
+struct DetailArticleViewModel {
     
     let article: Article
     
@@ -33,12 +33,16 @@ struct ArticleViewModel {
     }
 }
 
-extension ArticleViewModel {
+extension DetailArticleViewModel {
     var title: Observable<String> {
         return Observable<String>.just(article.title)
     }
     
-    var description: Observable<String> {
-        return Observable<String>.just(article.description ?? "")
+    var content: Observable<String> {
+        return Observable<String>.just(article.content ?? "")
+    }
+    
+    var image: Observable<String> {
+        return Observable<String>.just(article.urlToImage ?? "")
     }
 }

@@ -94,10 +94,10 @@ extension NewsViewController: UITableViewDataSource,UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        print("1")
-        let selectedArticle = self.articleListVM.articleAt(indexPath.row)
+        let selectedArticle = DetailArticleViewModel(self.articleListVM.articleAt(indexPath.row).article)
         let detailVC = DetailNewsViewController()
         detailVC.selectedArticle = selectedArticle
         self.navigationController?.pushViewController(detailVC, animated: true)
     }
+
 }
