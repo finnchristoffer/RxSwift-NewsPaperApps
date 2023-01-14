@@ -10,16 +10,16 @@ import RxSwift
 import RxCocoa
 
 struct DetailArticleListViewModel {
-    let articlesVM: [ArticleViewModel]
+    let articlesVM: [DetailArticleViewModel]
     
     init(_ articles: [Article]) {
-        self.articlesVM = articles.compactMap(ArticleViewModel.init)
+        self.articlesVM = articles.compactMap(DetailArticleViewModel.init)
     }
 }
 
 extension DetailArticleListViewModel {
     
-    func articleAt(_ index: Int) -> ArticleViewModel {
+    func articleAt(_ index: Int) -> DetailArticleViewModel {
         return self.articlesVM[index]
     }
 }

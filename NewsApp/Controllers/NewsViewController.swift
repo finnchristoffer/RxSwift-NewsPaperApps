@@ -17,25 +17,22 @@ class NewsViewController: UIViewController {
     // MARK: - Properties
     let disposeBag = DisposeBag()
     private var articleListVM: ArticleListViewModel!
-    
-    lazy var tableView: UITableView = {
-       let view = UITableView()
-        
-        return view
-    }()
+    private var newsView: NewsView!
     
     // MARK: - Lifecycle
+    override func loadView() {
+        super.loadView()
+        newsView = NewsView(frame: view.frame)
+        view = newsView
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.navigationController?.navigationBar.prefersLargeTitles = true
+        newsView.setupConstraints()
         configure()
-        setupConstraints()
         populateNews()
     }
-    
-//    override func viewDidAppear(_ animated: Bool) {
-//        self.navigationController?.navigationBar.prefersLargeTitles = true
-//    }
     
     // MARK: - Helpers
     
@@ -43,17 +40,10 @@ class NewsViewController: UIViewController {
         view.backgroundColor = .white
         navigationItem.title = "News App"
         
-        tableView.delegate = self
-        tableView.dataSource = self
-        tableView.register(ArticleTableViewCell.self, forCellReuseIdentifier: reuseIdentifier)
-        tableView.rowHeight = UITableView.automaticDimension
-
-        
-        view.addSubview(tableView)
-    }
-    
-    func setupConstraints() {
-        tableView.anchor(top: view.safeAreaLayoutGuide.topAnchor, left: view.safeAreaLayoutGuide.leftAnchor, bottom: view.safeAreaLayoutGuide.bottomAnchor, right: view.safeAreaLayoutGuide.rightAnchor)
+        newsView.tableView.delegate = self
+        newsView.tableView.dataSource = self
+        newsView.tableView.register(ArticleTableViewCell.self, forCellReuseIdentifier: reuseIdentifier)
+        newsView.tableView.rowHeight = UITableView.automaticDimension
     }
     
     private func populateNews() {
@@ -65,13 +55,14 @@ class NewsViewController: UIViewController {
                 let articles = articleResponse.articles
                 self.articleListVM = ArticleListViewModel(articles)
                 DispatchQueue.main.async {
-                    self.tableView.reloadData()
+                    self.newsView.tableView.reloadData()
                 }
             }).disposed(by: disposeBag)
     }
 
 }
 
+// MARK: - UITableViewSource & UITableViewDelegate
 extension NewsViewController: UITableViewDataSource,UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -87,9 +78,20 @@ extension NewsViewController: UITableViewDataSource,UITableViewDelegate {
         articleVM.title.asDriver(onErrorJustReturn: "")
             .drive(cell.titleLabel.rx.text)
             .disposed(by: disposeBag)
-        articleVM.description.asDriver(onErrorJustReturn: "")
-            .drive(cell.descriptionLabel.rx.text)
+        articleVM.published.asDriver(onErrorJustReturn: "")
+            .drive(cell.publishedTimmeLabel.rx.text)
             .disposed(by: disposeBag)
+        articleVM.image.asDriver(onErrorJustReturn: "").drive(onNext: { imageUrl in
+            if let url = URL(string: imageUrl) {
+                URLSession.shared.dataTask(with: url) { data, _, _ in
+                    if let data = data {
+                        DispatchQueue.main.async {
+                            cell.thumbnailImage.image = UIImage(data: data)
+                        }
+                    }
+                }.resume()
+            }
+        }).disposed(by: disposeBag)
         return cell
     }
     
@@ -99,5 +101,5 @@ extension NewsViewController: UITableViewDataSource,UITableViewDelegate {
         detailVC.selectedArticle = selectedArticle
         self.navigationController?.pushViewController(detailVC, animated: true)
     }
-
 }
+
