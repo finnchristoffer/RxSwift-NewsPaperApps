@@ -48,7 +48,7 @@ class NewsViewController: UIViewController {
     
     private func populateNews() {
         
-        let resource = Resource<ArticleResponse>(url: URL(string: "https://newsapi.org/v2/top-headlines?country=id&apiKey=003f9cf2364c4f338df38fe6400114e7")!)
+        let resource = Resource<ArticleResponse>(url: URL.urlForNews()!)
         
         URLRequest.load(resource: resource)
             .subscribe(onNext: { articleResponse in
